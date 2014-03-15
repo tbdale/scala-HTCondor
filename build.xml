@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project name="scala-HTCondor" basedir="." default="build">
+<property file="build.properties" />
+<property name="dist.dir" value="dist" />
+<property name="build.dir" value="build" />
+<property name="conf.dir" value="config" />
+<property name="lib.dir" value="lib" />
+<property name="scala-library.jar" value="${scala.dir}/lib/scala-library.jar" />
+<property name="dist-archive" value="${ant.project.name}-${version}.tar.gz" />
+<path id="classpath">
+	<pathelement location="${scala-library.jar}" />
+	<pathelement location="${build.dir}" />
+	<pathelement location="${scala.dir}/lib/scala-actors.jar" />
+	<pathelement location="${lib.dir}/commons-io-2.4.jar" />
+</path>
+<taskdef resource="scala/tools/ant/antlib.xml">
+	<classpath>
+		<pathelement location="${scala.dir}/lib/scala-compiler.jar" />
+		<pathelement location="${scala-library.jar}" />
+		<pathelement location="${scala.dir}/lib/scala-reflect.jar" />
+	</classpath>
+</taskdef>
+<target name="configure">
+	<mkdir dir="${build.dir}" />
+	<mkdir dir="${dist.dir}" />
+</target>
+<target name="compile" depends="configure">
+	<echo message="${ant.project.name}: ${ant.file}" />
+	<scalac force="changed" deprecation="on" destdir="${build.dir}">
+		<src path="src" />
+		<classpath refid="classpath" />
+	</scalac>
+</target>
+<target name="build" depends="jar-project" description="Build and jar the project" />
+	
+<target name="jar-project">
+	<jar destfile="${dist.dir}/${ant.project.name}.jar">
+		<fileset dir="${build.dir}" />
+	</jar>
+</target>
+<target name="clean" description="Remove all build artifacts">
+	<delete dir="${build.dir}" />
+	<delete dir="${dist.dir}" />
+	<delete file="${project.jar}" />
+</target>
+</project>
