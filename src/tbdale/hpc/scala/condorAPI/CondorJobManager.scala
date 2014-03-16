@@ -16,9 +16,8 @@ class CondorJobManager(logFile:String) extends Actor{
     receive{
       case condorSubmit(job) =>{
         // just to test message passing
-        println("queueJob(job)")
-        Thread.sleep(5000)
-        sender ! "done"
+        val retJob = queueJob(job)
+        sender ! retJob.clusterId
       }
       case _ => {println("Error, unknown message type")  }
     }
