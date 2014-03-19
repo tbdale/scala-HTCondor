@@ -7,13 +7,14 @@ import scala.sys.process._
 object CondorCommands {
    def submit(jobDescriptor:String):Either[CondorStatus,Long]={
      val cmd = Seq("/bin/bash","-c","echo \"%s\"|condor_submit -".format(jobDescriptor))
+     // val cmd = Seq("/bin/bash","-c","echo \"%s\"|/home/brian/test_submit".format(jobDescriptor)) // prototyping
      try{
        val retval = cmd !!
 	     val clusterIdMatcher = """\*\* Proc (\d+).*""".r
 	     retval.split("\n").foreach(line=>{
 	       line match {
 	         case clusterIdMatcher(clusterId) => return Right(clusterId.toLong)
-	         case _ => {/*ignore*/}
+	         case _ => {/*drop*/}
 	       }
 	     })
 	     return Left(new CondorSubmitFailed("Unknown error"))

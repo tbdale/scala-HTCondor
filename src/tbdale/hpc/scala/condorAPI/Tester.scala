@@ -13,9 +13,9 @@ object Tester  {
     val condorJob  = new CondorJob("32M","/bin/sleep","30","Vanilla","/tmp/sleep.out","/tmp/sleep.err",condorLogFile)
     println("Submitting job:\n")
     val retmsg = condorManager !? condorSubmit(condorJob)
-    val retval = {retmsg match {
-      case Left(err:CondorSubmitFailed) => "Condor Error:"+err.msg
-      case Right(id) => id}    }
+    val retval = {  retmsg match {
+      case err:CondorSubmitFailed => "Condor Error:"+err.msg
+      case id:Long =>id}    }
     println("Job status or ID:"+retval)
-  } 
+    } 
 }
