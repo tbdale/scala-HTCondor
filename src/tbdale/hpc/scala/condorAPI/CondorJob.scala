@@ -9,8 +9,7 @@ class CondorJob( val reqRam:String,
                  val universe:String,
                  val outFileFQP:String,
                  val errFileFQP:String,
-                 val condorLogFQP:String,
-                 val clusterId:Either[CondorStatus,Long] = Left(new CondorJobNotSubmitted)){
+                 val condorLogFQP:String = ""){
   def genDescription:String={
     // generate condor submit description to pass to condor_submit via STDIN
 """
@@ -21,7 +20,8 @@ request_memory = %s
 error   = %s                                                
 output  = %s                                                
 log     = %s
+log_xml = true
 queue
-""".format(executable,execArguments,universe,reqRam,errFileFQP,outFileFQP,condorLogFQP)
+""".format(executable,execArguments,universe,reqRam,errFileFQP,outFileFQP,condorLogFQP )
   }
 }

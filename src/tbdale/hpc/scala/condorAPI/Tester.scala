@@ -5,27 +5,31 @@ import scala.sys.process._
 /*
  * Tester - for prototyping and unit testing
  */
-class TestManager(logFile:String) extends Actor{
-  def act(){
-    val logMonitor = new CondorLogMonitor(new java.io.File(logFile), this )
-    logMonitor.start(500)
-    
+class TestWorker(manager:CondorJobManager) extends Actor{
+  def act(){       
     // message handler to receive job submissions, logMonitor events and sends status updates to submitters
+    println("Starting worker")
+    val condorJob  = new CondorJob("32M","/bin/sleep","30","Vanilla","/tmp/sleep.out","/tmp/sleep.err")
+    manager ! SendCondorJob(condorJob)
     loop {
       receive {
-        case logUpdate(clusterId,event) => {
-	        // logMonitor has found new events in the condor log
-	        println("Received log update for job:"+clusterId, event.toString) // prototyping
+        case CondorSubmitEvent() => {println("receieved submit confirmation")}
+        case CondorExecuteEvent() => {println("receieved execute confirmation")}
+        case CondorJobTerminatedEvent() => {println("received job completed")}
+        case _ => {println("received event")}
         }
-      }
-    }
-  }
+       }    
+   }
 }
 object Tester  {
   def main(args: Array[String]): Unit = {
-    println(Seq("/bin/bash","-c","ls test") !! )
-    val tm = new TestManager("test/condor.log")
+    val manager = new CondorJobManager("~bdale/condor_test.log")    
+    manager.start
+    
+    println("Creating worker")
+    val tm = new TestWorker(manager)
     tm.start
-    Thread.sleep(30000)
+    //stupid loop to keep threads alive
+    while(true) Thread.sleep(100)
     } 
 }
