@@ -10,14 +10,14 @@ import scala.actors.{Actor,OutputChannel}
  */
 
 case class condorSubmit(job:CondorJob)
-case class logUpdate(id:Long)
+case class logUpdate(id:Long,event:CondorStatus)
 
 class CondorJobManager(logFile:String) extends Actor{
   def act(){
     // jobQueue is where we're going to keep track of the condor jobs in flight
     val jobQueue:MutableMap[Long,OutputChannel[Any]] = MutableMap[Long,OutputChannel[Any]]()
     // we need a logMonitor to watch the condor log and look for events 
-    val logMonitor = new CondorLogMonitor(new File(logFile), this )
+   // val logMonitor = new CondorLogMonitor(new File(logFile), this )
     
     // message handler to receive job submissions, logMonitor events and sends status updates to submitters
     loop {
@@ -38,13 +38,13 @@ class CondorJobManager(logFile:String) extends Actor{
 	          }   
 	        }       
 	      }
-	      case logUpdate(clusterId) => {
+	      case logUpdate(clusterId,event) => {
 	        // logMonitor has found new events in the condor log
 	        println("Received log update for job:"+clusterId) // prototyping
 	        jobQueue get clusterId match {
 	          case Some(sender) => {
 	              println ("Sending job update to sender for job:"+clusterId) // prototyping
-	              sender ! clusterId            
+	              sender ! event            
 	            }
 	          case None => {
 	              println ("Unable to find sender for job:"+clusterId) // prototyping
