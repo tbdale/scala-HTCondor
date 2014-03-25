@@ -57,9 +57,6 @@ class CondorJobManager(logFile:String) extends Actor{
 	        println("Received log update for job: %s, queue len:%d".format(clusterId,jobQueue.size)) // prototyping
 	        jobQueue get clusterId match {
 	          case Some(sender) => {
-	              println ("Sending job update to sender for job:"+clusterId) // prototyping
-	              sender ! event	              
-	              // remove from queue if job completed/terminated
 	              event match {
 	                case CondorJobTerminatedEvent() => {
 	                  println("Job terminated: %s, queue len:%d".format(clusterId,jobQueue.size)) // prototyping
