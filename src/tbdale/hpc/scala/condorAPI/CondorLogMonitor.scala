@@ -8,6 +8,10 @@ import org.apache.commons.io.input._
  * CondorLogMonitor 'tails' condor logfile looking for events to message back to manager
  */
 
+case class LogUpdate(id:Long,event:CondorStatus)
+case class SendCondorJob(job:CondorJob)
+
+
 class CondorLogMonitor (val logfile:File, manager: CondorJobManager ) extends TailerListenerAdapter {
   val lineBuffer = new ListBuffer[String] // line buffer to store lines from tailer
 
@@ -20,7 +24,6 @@ class CondorLogMonitor (val logfile:File, manager: CondorJobManager ) extends Ta
      }
   }
   def processEvent{
-    println("Processing event") //prototyping
     // using regex to pick out parts of the xml log entry
     val clusterIdMatcher = """.*<a n="Cluster"><i>(.*)</i></a>.*""".r
     val typeMatcher = """.*<a n="MyType"><s>(.*)</s></a>.*""".r
@@ -35,6 +38,7 @@ class CondorLogMonitor (val logfile:File, manager: CondorJobManager ) extends Ta
 	            case "SubmitEvent" => getEvent(lines.tail, clusterId, Some(new CondorSubmitEvent))
 	            case "ExecuteEvent" => getEvent(lines.tail, clusterId, Some(new CondorExecuteEvent))
 	            case "JobTerminatedEvent" => getEvent(lines.tail, clusterId, Some(new CondorJobTerminatedEvent))
+	            case _=> getEvent(lines.tail,clusterId,event)
 	          }
 	        }
 	        case _ => getEvent(lines.tail,clusterId,event)

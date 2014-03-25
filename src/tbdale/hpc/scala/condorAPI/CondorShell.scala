@@ -1,11 +1,23 @@
 package tbdale.hpc.scala.condorAPI
+import scala.actors.{Actor,OutputChannel}
 import scala.sys.process._
 /*
  * CondorCommands - function wrappers for HTCondor commands
  */
+case class CondorSubmitCommand(desc:String,worker:OutputChannel[Any])
 
-object CondorCommands {
-   def submit(jobDescriptor:String):CondorStatus={
+class CondorShell extends Actor{
+  def act(){
+    loop{
+      receive{
+        case CondorSubmitCommand(desc,worker) =>{
+          sender ! submit(desc,worker)
+          exit
+        }
+      }
+    }
+  }
+   def submit(jobDescriptor:String,worker:OutputChannel[Any]):CondorStatus={
      val cmd = Seq("/bin/bash","-c","echo \"%s\"|condor_submit -".format(jobDescriptor))
      // val cmd = Seq("/bin/bash","-c","echo \"%s\"|/home/brian/test_submit".format(jobDescriptor)) // prototyping
      try{
@@ -13,7 +25,7 @@ object CondorCommands {
 	     val clusterIdMatcher = """\*\* Proc (\d+).*""".r
 	     retval.split("\n").foreach(line=>{
 	       line match {
-	         case clusterIdMatcher(clusterId) => return CondorSubmitReturn(clusterId.toLong)
+	         case clusterIdMatcher(clusterId) => return CondorSubmitReturn(clusterId.toLong,worker)
 	         case _ => {/*drop*/}
 	       }
 	     })
