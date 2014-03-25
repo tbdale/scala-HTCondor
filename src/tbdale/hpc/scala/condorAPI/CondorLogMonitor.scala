@@ -9,8 +9,6 @@ import org.apache.commons.io.input._
  */
 
 case class LogUpdate(id:Long,event:CondorStatus)
-case class SendCondorJob(job:CondorJob)
-
 
 class CondorLogMonitor (val logfile:File, manager: CondorJobManager ) extends TailerListenerAdapter {
   val lineBuffer = new ListBuffer[String] // line buffer to store lines from tailer

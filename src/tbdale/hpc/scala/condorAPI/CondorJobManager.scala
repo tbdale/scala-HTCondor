@@ -9,6 +9,7 @@ import scala.actors.{Actor,OutputChannel}
  *  @logFile condor log file to watch
  */
 
+case class SendCondorJob(condorJob:CondorJob)
 
 class CondorJobManager(logFile:String) extends Actor{
   def act(){
