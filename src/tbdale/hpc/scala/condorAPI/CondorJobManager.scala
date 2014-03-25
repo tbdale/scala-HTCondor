@@ -27,20 +27,29 @@ class CondorJobManager(logFile:String) extends Actor{
 	    receive{
 	      case SendCondorJob(job) =>{
 	        // we received a request to start a condor job
-	        val status = queueJob(job,logFile)
-	        status match {
-	          case CondorSubmitReturn(id) => {
+	        val condorShell = new CondorShell()
+	        condorShell.start
+	        val desc=new CondorJob(job.reqRam,
+                  job.executable,
+                  job.execArguments,
+                  job.universe,
+                  job.outFileFQP,
+                  job.errFileFQP,
+                  logFile).genDescription
+	
+	        condorShell ! CondorSubmitCommand(desc,sender)
+	      }
+	       
+	      case CondorSubmitReturn(id,worker) => {
 	            // it's a good submission, add to queue
-	            jobQueue += (id -> sender)
+	            jobQueue += (id -> worker)
 	            println("Added job to queue: %d , queue len: %d".format(id, jobQueue.size)) // prototyping
-	            }
-	          case CondorSubmitFailed(status)=>{
+	      }
+	      case CondorSubmitFailed(status)=>{
 	            // something went wrong when we tried to shell out and submit the condor job
 	            println("Error: sending failure message to sender") // prototyping
-	            sender ! CondorSubmitFailed(status)
-	          }   
-	        }       
-	      }
+	      }   
+	            
 	      case LogUpdate(clusterId,event) => {
 	        // logMonitor has found new events in the condor log
 	        println("Received log update for job: %s, queue len:%d".format(clusterId,jobQueue.size)) // prototyping
@@ -65,17 +74,8 @@ class CondorJobManager(logFile:String) extends Actor{
 	      case _ => {println("Error, unknown message type") /* // prototyping */ }
 	    } // end receive
     } // end loop
+    println("Closing manager")
   }
   
-  private def queueJob(job:CondorJob,condorLogFQP:String):CondorStatus={
-    // take a new unsubmitted job, submit to condor, and return a submitted job
-    CondorCommands.submit(new CondorJob(job.reqRam,
-                  job.executable,
-                  job.execArguments,
-                  job.universe,
-                  job.outFileFQP,
-                  job.errFileFQP,
-                  condorLogFQP).genDescription)                  
-  }
 
 }
