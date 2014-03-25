@@ -45,9 +45,10 @@ class CondorJobManager(logFile:String) extends Actor{
 	            jobQueue += (id -> worker)
 	            println("Added job to queue: %d , queue len: %d".format(id, jobQueue.size)) // prototyping
 	      }
-	      case CondorSubmitFailed(status)=>{
+	      case CondorSubmitFailed(status,worker)=>{
 	            // something went wrong when we tried to shell out and submit the condor job
 	            println("Error: sending failure message to sender") // prototyping
+	            worker ! CondorJobNotSubmitted
 	      }   
 	            
 	      case LogUpdate(clusterId,event) => {
@@ -76,6 +77,9 @@ class CondorJobManager(logFile:String) extends Actor{
     } // end loop
     println("Closing manager")
   }
-  
+  def getMailboxSize:Int={
+    // just for test
+    this.mailboxSize
+  }
 
 }

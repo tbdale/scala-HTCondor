@@ -9,7 +9,7 @@ class TestWorker(manager:CondorJobManager, num:Int) extends Actor{
   def act(){       
     // message handler to receive job submissions, logMonitor events and sends status updates to submitters
     println("Starting worker")
-    val condorJob  = new CondorJob("32M","/bin/sleep","10","Vanilla","/tmp/sleep.out","/tmp/sleep.err")
+    val condorJob  = new CondorJob("32M","/bin/sleep","5","Vanilla","/tmp/sleep.out","/tmp/sleep.err")
     manager ! SendCondorJob(condorJob)
     loop {
       receive {
@@ -29,8 +29,12 @@ object Tester  {
       println("Creating worker:"+num)
       val tm = new TestWorker(manager,num)
       tm.start
-      Thread.sleep(100) //throttle
+      Thread.sleep(50) //simple throttle (20 submits/second)
     })
+    while(true) {
+      Thread.sleep(1000)
+      print("Manager mailbox size:"+manager.getMailboxSize)
+    }
     println("Tester exiting")
     } 
 }
