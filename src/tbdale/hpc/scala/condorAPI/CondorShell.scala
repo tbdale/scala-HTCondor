@@ -11,7 +11,8 @@ class CondorShell extends Actor{
     loop{
       receive{
         case CondorSubmitCommand(desc,worker) =>{
-          sender ! submit(desc,worker)
+          sender ! submit(desc,worker)          
+          println("CondorShell exit") // prototyping
           exit
         }
       }
@@ -29,9 +30,9 @@ class CondorShell extends Actor{
 	         case _ => {/*drop*/}
 	       }
 	     })
-	     return new CondorSubmitFailed("Unknown error")
+	     return new CondorSubmitFailed("Unknown error",worker)
      }catch{
-       case e:Exception => return(new CondorSubmitFailed("Exception: condor_submit command failed"))
+       case e:Exception => return(new CondorSubmitFailed("Exception: condor_submit command failed",worker))
      }
    }
    def remove(clusterID:Long)={

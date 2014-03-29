@@ -29,8 +29,12 @@ object Tester  {
       println("Creating worker:"+num)
       val tm = new TestWorker(manager,num)
       tm.start
-      Thread.sleep(100) //throttle
+      Thread.sleep(50) //simple throttle (20 submits/second)
     })
+    while(true) {
+      Thread.sleep(1000)
+      print("Manager mailbox size:"+manager.getMailboxSize)
+    }
     println("Tester exiting")
     } 
 }

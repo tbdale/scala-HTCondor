@@ -9,6 +9,7 @@ import scala.actors.{Actor,OutputChannel}
  *  @logFile condor log file to watch
  */
 
+case class SendCondorJob(condorJob:CondorJob)
 
 protected class CondorJobManager(logFile:String) extends Actor{
   
@@ -47,7 +48,7 @@ protected class CondorJobManager(logFile:String) extends Actor{
 	            jobQueue += (id -> worker)
 	            //println("Added job to queue: %d , queue len: %d".format(id, jobQueue.size)) // prototyping
 	      }
-	      case CondorSubmitFailed(status)=>{
+	      case CondorSubmitFailed(status,worker)=>{
 	            // something went wrong when we tried to shell out and submit the condor job
 	            println("Error: Condor Submit failed: sending failure message to sender") // prototyping
 	      }   
@@ -79,7 +80,10 @@ protected class CondorJobManager(logFile:String) extends Actor{
     } // end loop
     println("Closing manager")
   }
-  
+  def getMailboxSize:Int={
+    // just for test
+    this.mailboxSize
+  }
 }
 object CondorJobManager {
   private var instance:Option[CondorJobManager] = None 
