@@ -9,7 +9,7 @@ class TestWorker(manager:CondorJobManager, num:Int) extends Actor{
   def act(){       
     // message handler to receive job submissions, logMonitor events and sends status updates to submitters
     println("Starting worker")
-    val condorJob  = new CondorJob("32M","/bin/sleep","10","Vanilla","/tmp/sleep.out","/tmp/sleep.err")
+    val condorJob  = new CondorJob("32M","/bin/sleep","10","Vanilla","/tmp","/tmp/sleep.out","/tmp/sleep.err")
     manager ! SendCondorJob(condorJob)
     loop {
       receive {
