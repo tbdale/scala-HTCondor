@@ -11,7 +11,8 @@ import scala.actors.{Actor,OutputChannel}
 
 case class SendCondorJob(condorJob:CondorJob)
 
-class CondorJobManager(logFile:String) extends Actor{
+protected class CondorJobManager(logFile:String) extends Actor{
+  
   def act(){
     
     // create condor log file    
@@ -34,6 +35,7 @@ class CondorJobManager(logFile:String) extends Actor{
                   job.executable,
                   job.execArguments,
                   job.universe,
+                  job.initialDir,
                   job.outFileFQP,
                   job.errFileFQP,
                   logFile).genDescription
@@ -44,25 +46,28 @@ class CondorJobManager(logFile:String) extends Actor{
 	      case CondorSubmitReturn(id,worker) => {
 	            // it's a good submission, add to queue
 	            jobQueue += (id -> worker)
-	            println("Added job to queue: %d , queue len: %d".format(id, jobQueue.size)) // prototyping
+	            //println("Added job to queue: %d , queue len: %d".format(id, jobQueue.size)) // prototyping
 	      }
 	      case CondorSubmitFailed(status,worker)=>{
 	            // something went wrong when we tried to shell out and submit the condor job
-	            println("Error: sending failure message to sender") // prototyping
-	            worker ! CondorJobNotSubmitted
+	            println("Error: Condor Submit failed: sending failure message to sender") // prototyping
 	      }   
 	            
 	      case LogUpdate(clusterId,event) => {
 	        // logMonitor has found new events in the condor log
-	        println("Received log update for job: %s, queue len:%d".format(clusterId,jobQueue.size)) // prototyping
+	        //println("Received log update for job: %s, queue len:%d".format(clusterId,jobQueue.size)) // prototyping
 	        jobQueue get clusterId match {
 	          case Some(sender) => {
+	              println ("Sending job update to sender for job:"+clusterId) // prototyping
+	              //sender ! event	              
+	              // remove from queue if job completed/terminated
 	              event match {
 	                case CondorJobTerminatedEvent() => {
 	                  println("Job terminated: %s, queue len:%d".format(clusterId,jobQueue.size)) // prototyping
+	                  sender ! CondorJobTerminatedEvent
 	                  jobQueue -= clusterId
 	                }
-	                case _ => {}
+	                case _ => {/**logging??**/}
 	              }
 	            }
 	          case None => {
@@ -70,7 +75,7 @@ class CondorJobManager(logFile:String) extends Actor{
 	            }
 	        }	        
 	      }
-	      case _ => {println("Error, unknown message type") /* // prototyping */ }
+	      case _ => {/*println("Error, unknown message type")*/ /* // prototyping */ }
 	    } // end receive
     } // end loop
     println("Closing manager")
@@ -79,5 +84,19 @@ class CondorJobManager(logFile:String) extends Actor{
     // just for test
     this.mailboxSize
   }
-
+}
+object CondorJobManager {
+  private var instance:Option[CondorJobManager] = None 
+  
+  def getInstance(logFileFQP:String):CondorJobManager={
+    instance match{
+      case Some(cjm) => cjm
+      case None => {
+        val cjm = new CondorJobManager(logFileFQP)
+        cjm.start
+        instance = Some(cjm)
+        cjm          
+      }
+    }
+  }
 }
