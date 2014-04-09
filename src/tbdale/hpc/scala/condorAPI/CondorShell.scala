@@ -12,7 +12,6 @@ class CondorShell extends Actor{
       receive{
         case CondorSubmitCommand(desc,worker) =>{
           sender ! submit(desc,worker)          
-          println("CondorShell exit") // prototyping
           exit
         }
       }
@@ -20,7 +19,6 @@ class CondorShell extends Actor{
   }
    def submit(jobDescriptor:String,worker:OutputChannel[Any]):CondorStatus={
      val cmd = Seq("/bin/bash","-c","echo \"%s\"|condor_submit -".format(jobDescriptor))
-     // val cmd = Seq("/bin/bash","-c","echo \"%s\"|/home/brian/test_submit".format(jobDescriptor)) // prototyping
      try{
        val retval = cmd !!
 	     val clusterIdMatcher = """\*\* Proc (\d+).*""".r
