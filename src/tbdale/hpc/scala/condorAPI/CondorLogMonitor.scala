@@ -54,7 +54,7 @@ class CondorLogMonitor (val logfile:File, manager: CondorJobManager ) extends Ta
                        )
   }
   def start(delay:Int):Tailer = {
-    println("Starting Log tailer") // prototyping
+    manager.managerLogger.logCondorManagerEvent("CondorJobManager.CondorLogMonitor()::Starting tailer.", manager.managerLogger.INFORMATIONAL)
     Tailer.create(logfile, this, delay)
  }
 }

@@ -21,9 +21,14 @@ class TestWorker(manager:CondorJobManager, num:Int) extends Actor{
        }    
    }
 }
+object TestLogger extends CondorManagerLogger{
+  def logCondorManagerEvent(msg:String,sev:SEVERITY){
+    print("%s:%s".format(sev.toString),msg)
+  }
+}
 object Tester  {
   def main(args: Array[String]): Unit = {
-    val manager = new CondorJobManager("~bdale/condor_test.log")    
+    val manager = new CondorJobManager("~bdale/condor_test.log",TestLogger)    
     manager.start
     (1 to 1000).foreach( num =>{
       println("Creating worker:"+num)
