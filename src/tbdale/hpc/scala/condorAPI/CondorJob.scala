@@ -17,7 +17,7 @@ class CondorJob( val reqRam:String,
 Executable     = %s
 Arguments      = %s    
 Universe       = %s                                                    
-request_memory = %s
+Image_Size = %s
 initialdir = %s
 error   = %s                                                
 output  = %s                                                

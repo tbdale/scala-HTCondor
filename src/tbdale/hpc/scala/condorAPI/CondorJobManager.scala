@@ -67,7 +67,7 @@ protected class CondorJobManager(logFile:String,val managerLogger:CondorManagerL
 	                  jobQueue -= clusterId
 	                }
 	                case _ => {
-	                  managerLogger.logCondorManagerEvent("CondorJobManager.LogUpdate()::Unknown event type for job cluster id:%s".format(clusterId,jobQueue.size),
+	                  managerLogger.logCondorManagerEvent("CondorJobManager.LogUpdate()::Unhandled event type \"%s\" for job cluster id:%s".format(event.getClass().getName(),clusterId,jobQueue.size),
 	                                                               managerLogger.DEBUG)
 	                }
 	              }
