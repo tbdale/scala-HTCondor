@@ -1,0 +1,6 @@
+# Vim swap files
+*.swp
+
+# build artifacts
+build
+dist
