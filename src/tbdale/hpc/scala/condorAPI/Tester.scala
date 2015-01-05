@@ -15,7 +15,7 @@ class TestWorker(manager:CondorJobManager, num:Int) extends Actor{
       receive {
         case CondorSubmitEvent() => {println("Receieved submit confirmation:"+num)}
         case CondorExecuteEvent() => {println("Receieved execute confirmation:"+num)}
-        case CondorJobTerminatedEvent() => {println("Job complete:"+num);exit}
+        case CondorJobTerminatedEvent(reason,retval) => {println("Job complete:"+num);exit}
         case _ => {println("received event")}
         }
        }    
