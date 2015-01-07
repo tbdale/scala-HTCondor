@@ -60,7 +60,7 @@ protected class CondorJobManager(logFile:String,val managerLogger:CondorManagerL
 	              managerLogger.logCondorManagerEvent("CondorJobManager.LogUpdate()::Sending job update to sender for job:"+clusterId
 	                                                   ,managerLogger.DEBUG)
 	              event match {
-	                case CondorJobTerminatedEvent(reason,retval) => {
+	                case CondorJobTerminatedEvent(reason,Some(retval)) => {
 	                  managerLogger.logCondorManagerEvent("CondorJobManager.LogUpdate()::Job terminated: %s, return code:%d queue len:%d".format(clusterId,retval,jobQueue.size),
 	                                                      managerLogger.DEBUG)
 	                  sender ! CondorJobTerminatedEvent
